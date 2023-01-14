@@ -1,6 +1,6 @@
 [package]
-name = "swc-hello-plugin"
-version = "0.1.1"
+name = "swc-plugin-hello"
+version = "0.1.0"
 edition = "2021"
 
 [lib]
