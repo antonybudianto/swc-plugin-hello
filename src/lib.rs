@@ -1,6 +1,5 @@
-use swc_core::common::Spanned;
 use swc_core::ecma::{
-    ast::{op, BinExpr, Ident, Program},
+    ast::{Ident, Program},
     transforms::testing::test,
     visit::{as_folder, FoldWith, VisitMut, VisitMutWith},
 };
@@ -14,18 +13,16 @@ impl VisitMut for TransformVisitor {
     // A comprehensive list of possible visitor methods can be found here:
     // https://rustdoc.swc.rs/swc_ecma_visit/trait.VisitMut.html
 
-    fn visit_mut_bin_expr(&mut self, e: &mut BinExpr) {
-        e.visit_mut_children_with(self);
+    // fn visit_mut_bin_expr(&mut self, e: &mut BinExpr) {
+    //     e.visit_mut_children_with(self);
 
-        if e.op == op!("===") {
-            e.left = Box::new(Ident::new("kdy1".into(), e.left.span()).into());
-        }
-    }
+    //     if e.op == op!("===") {
+    //         e.left = Box::new(Ident::new("kdy1".into(), e.left.span()).into());
+    //     }
+    // }
 
     fn visit_mut_ident(&mut self, n: &mut Ident) {
         n.visit_mut_children_with(self);
-
-        println!(">>{}", n.sym.to_string());
 
         if n.sym.to_string() == "__DEV__" {
             n.sym = "false".into();
@@ -57,13 +54,13 @@ pub fn process_transform(program: Program, _metadata: TransformPluginProgramMeta
 // Recommended strategy to test plugin's transform is verify
 // the Visitor's behavior, instead of trying to run `process_transform` with mocks
 // unless explicitly required to do so.
-test!(
-    Default::default(),
-    |_| as_folder(TransformVisitor),
-    simple_transform_kdy1,
-    r#"foo === bar;"#,
-    r#"kdy1 === bar;"#
-);
+// test!(
+//     Default::default(),
+//     |_| as_folder(TransformVisitor),
+//     simple_transform_kdy1,
+//     r#"foo === bar;"#,
+//     r#"kdy1 === bar;"#
+// );
 
 test!(
     Default::default(),

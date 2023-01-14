@@ -4,7 +4,16 @@
 
 ## Get started
 
-- WIP
+```sh
+cargo test
+```
+
+## Publish
+
+```sh
+make build-lib
+npm publish
+```
 
 ## License
 
