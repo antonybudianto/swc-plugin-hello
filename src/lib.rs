@@ -1,6 +1,6 @@
 use swc_core::common::util::take::Take;
 use swc_core::ecma::ast::Pat::Ident;
-use swc_core::ecma::ast::{Decl, ModuleItem, Stmt};
+use swc_core::ecma::ast::{Decl, ModuleDecl, ModuleItem};
 use swc_core::ecma::{
     ast::{Program, VarDeclarator},
     transforms::testing::test,
@@ -14,29 +14,6 @@ impl VisitMut for TransformVisitor {
     // Implement necessary visit_mut_* methods for actual custom transform.
     // A comprehensive list of possible visitor methods can be found here:
     // https://rustdoc.swc.rs/swc_ecma_visit/trait.VisitMut.html
-
-    fn visit_mut_export_decl(&mut self, v: &mut swc_core::ecma::ast::ExportDecl) {
-        v.visit_mut_children_with(self);
-
-        // v.decl.take();
-
-        // match &v.decl {
-        //     Decl::Var(vd) => {
-        //         match &vd.decls[0].name {
-        //             Ident(i) => {
-        //                 println!("LOG:{}", &*i.sym);
-        //                 if &*i.sym == "getServerSideProps" {
-        //                     println!(">> removed!");
-        //                     v.span.take();
-        //                     // v.decl.take();
-        //                 }
-        //             }
-        //             _ => {}
-        //         }
-        //     }
-        //     _ => {}
-        // }
-    }
 
     fn visit_mut_var_declarator(&mut self, v: &mut VarDeclarator) {
         // This is not required in this example, but you typically need this.
@@ -76,40 +53,27 @@ impl VisitMut for TransformVisitor {
         });
     }
 
-    fn visit_mut_stmt(&mut self, s: &mut Stmt) {
-        s.visit_mut_children_with(self);
-
-        match s {
-            Stmt::Decl(Decl::Var(var)) => {
-                if var.decls.is_empty() {
-                    // Variable declaration without declarator is invalid.
-                    //
-                    // After this, `s` becomes `Stmt::Empty`.
-                    s.take();
-                }
-            }
-            _ => {}
-        }
-    }
-
-    fn visit_mut_stmts(&mut self, stmts: &mut Vec<Stmt>) {
-        stmts.visit_mut_children_with(self);
-
-        // We remove `Stmt::Empty` from the statement list.
-        // This is optional, but it's required if you don't want extra `;` in output.
-        stmts.retain(|s| {
-            // We use `matches` macro as this match is trivial.
-            !matches!(s, Stmt::Empty(..))
-        });
-    }
-
     fn visit_mut_module_items(&mut self, stmts: &mut Vec<ModuleItem>) {
         stmts.visit_mut_children_with(self);
 
         // This is also required, because top-level statements are stored in `Vec<ModuleItem>`.
         stmts.retain(|s| {
-            // We use `matches` macro as this match is trivial.
-            !matches!(s, ModuleItem::Stmt(Stmt::Empty(..)))
+            match s {
+                ModuleItem::ModuleDecl(d) => match d {
+                    ModuleDecl::ExportDecl(ed) => match &ed.decl {
+                        Decl::Var(v) => {
+                            if v.decls.is_empty() {
+                                return false;
+                            }
+                        }
+                        _ => {}
+                    },
+                    _ => {}
+                },
+                _ => {}
+            }
+
+            return true;
         });
     }
 }
@@ -149,7 +113,7 @@ pub fn process_transform(program: Program, _metadata: TransformPluginProgramMeta
 test!(
     Default::default(),
     |_| as_folder(TransformVisitor),
-    simple_transform_global_var,
+    delete_export_getserversideprops,
     r#"
 export const getServerSideProps = async context => {
     return {
