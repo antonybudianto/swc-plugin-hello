@@ -8,6 +8,11 @@ use swc_core::ecma::{
 };
 use swc_core::plugin::{plugin_transform, proxies::TransformPluginProgramMetadata};
 
+const EXPORT_NAME_GET_INITIAL_PROPS: &str = "getInitialProps";
+const EXPORT_NAME_GET_SERVER_PROPS: &str = "getServerSideProps";
+const EXPORT_NAME_GET_STATIC_PROPS: &str = "getStaticProps";
+const EXPORT_NAME_GET_STATIC_CONFIG: &str = "getStaticConfig";
+
 pub struct TransformVisitor;
 
 impl VisitMut for TransformVisitor {
@@ -27,7 +32,11 @@ impl VisitMut for TransformVisitor {
             // Note the `&*` before i.sym.
             // The type of symbol is `JsWord`, which is an interned string.
             Ident(i) => {
-                if &*i.sym == "getServerSideProps" {
+                if &*i.sym == EXPORT_NAME_GET_SERVER_PROPS
+                    || &*i.sym == EXPORT_NAME_GET_INITIAL_PROPS
+                    || &*i.sym == EXPORT_NAME_GET_STATIC_CONFIG
+                    || &*i.sym == EXPORT_NAME_GET_STATIC_PROPS
+                {
                     // Take::take() is a helper function, which stores invalid value in the node.
                     // For Pat, it's `Pat::Invalid`.
                     v.name.take();
@@ -116,6 +125,75 @@ test!(
     delete_export_getserversideprops,
     r#"
 export const getServerSideProps = async context => {
+    return {
+        props: {
+            a: 1,
+        },
+    };
+};
+const Home = () => {
+    return null;
+};
+export default Home;"#,
+    r#"
+const Home = () => {
+    return null;
+};
+export default Home;"#
+);
+
+test!(
+    Default::default(),
+    |_| as_folder(TransformVisitor),
+    delete_export_getinitialprops,
+    r#"
+export const getInitialProps = async context => {
+    return {
+        props: {
+            a: 1,
+        },
+    };
+};
+const Home = () => {
+    return null;
+};
+export default Home;"#,
+    r#"
+const Home = () => {
+    return null;
+};
+export default Home;"#
+);
+
+test!(
+    Default::default(),
+    |_| as_folder(TransformVisitor),
+    delete_export_getstaticprops,
+    r#"
+export const getStaticProps = async context => {
+    return {
+        props: {
+            a: 1,
+        },
+    };
+};
+const Home = () => {
+    return null;
+};
+export default Home;"#,
+    r#"
+const Home = () => {
+    return null;
+};
+export default Home;"#
+);
+
+test!(
+    Default::default(),
+    |_| as_folder(TransformVisitor),
+    delete_export_getstaticconfig,
+    r#"
+export const getStaticConfig = async context => {
     return {
         props: {
             a: 1,

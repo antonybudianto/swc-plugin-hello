@@ -1,6 +1,6 @@
 {
     "name": "swc-plugin-hello",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "description": "Hello world rust swc plugin",
     "author": "Antony",
     "license": "MIT",
