@@ -1,17 +1,17 @@
 {
-    "name": "swc-plugin-hello",
-    "version": "0.1.0",
-    "description": "Hello world rust swc plugin",
-    "author": "Antony",
-    "license": "MIT",
-    "keywords": [
-        "swc-plugin"
-    ],
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/antonybudianto/swc-plugin-hello"
-    },
-    "main": "target/wasm32-wasi/release/swc_plugin_hello.wasm",
-    "scripts": {},
-    "files": []
+  "name": "swc-plugin-hello",
+  "version": "0.1.10",
+  "description": "Hello world rust swc plugin",
+  "author": "Antony",
+  "license": "MIT",
+  "keywords": [
+    "swc-plugin"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/antonybudianto/swc-plugin-hello"
+  },
+  "main": "target/wasm32-wasi/release/swc_plugin_hello.wasm",
+  "scripts": {},
+  "files": []
 }
