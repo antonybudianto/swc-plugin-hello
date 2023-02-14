@@ -1282,7 +1282,7 @@ dependencies = [
 
 [[package]]
 name = "swc-plugin-hello"
-version = "0.1.7"
+version = "0.1.10"
 dependencies = [
  "serde",
  "swc_core",

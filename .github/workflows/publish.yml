@@ -15,8 +15,8 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
-          toolchain: nightly-2023-02-08
-          target: wasm32-wasi
+          toolchain: 1.66.0
+          # target: wasm32-wasi
           override: true
       - uses: actions-rs/cargo@v1
         with:
